@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracker de Golf</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #27ae60;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #27ae60;
+        }
+        
+        button {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.4);
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .status-info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .status-success {
+            background: #e8f5e9;
+            color: #388e3c;
+            border-left: 4px solid #388e3c;
+        }
+        
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+        
+        .position-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .map-link {
+            display: inline-block;
+            margin-top: 10px;
+            color: #27ae60;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .map-link:hover {
+            text-decoration: underline;
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stats-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #27ae60;
+        }
+
+        .stats-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⛳ Tracker de Golf</h1>
+        <p class="subtitle">Enregistrez vos coups avec précision</p>
+        
+        <div class="form-group">
+            <label for="clubSelect">🏌️ Sélectionner un club:</label>
+            <select id="clubSelect">
+                <option value="">-- Choisir un club --</option>
+                <optgroup label="Bois">
+                    <option value="Driver">Driver</option>
+                    <option value="Bois 3">Bois 3</option>
+                    <option value="Bois 5">Bois 5</option>
+                    <option value="Bois 7">Bois 7</option>
+                </optgroup>
+                <optgroup label="Hybrides">
+                    <option value="Hybride 2">Hybride 2</option>
+                    <option value="Hybride 3">Hybride 3</option>
+                    <option value="Hybride 4">Hybride 4</option>
+                    <option value="Hybride 5">Hybride 5</option>
+                </optgroup>
+                <optgroup label="Fers">
+                    <option value="Fer 3">Fer 3</option>
+                    <option value="Fer 4">Fer 4</option>
+                    <option value="Fer 5">Fer 5</option>
+                    <option value="Fer 6">Fer 6</option>
+                    <option value="Fer 7">Fer 7</option>
+                    <option value="Fer 8">Fer 8</option>
+                    <option value="Fer 9">Fer 9</option>
+                </optgroup>
+                <optgroup label="Wedges">
+                    <option value="Pitching Wedge">Pitching Wedge (PW)</option>
+                    <option value="Gap Wedge">Gap Wedge (GW)</option>
+                    <option value="Sand Wedge">Sand Wedge (SW)</option>
+                    <option value="Lob Wedge">Lob Wedge (LW)</option>
+                </optgroup>
+                <optgroup label="Putter">
+                    <option value="Putter">Putter</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <button onclick="enregistrerCoup()" id="btnCoup">
+            📍 Nouveau Coup
+        </button>
+
+        <div class="stats">
+            <div class="stats-number" id="coupCount">0</div>
+            <div class="stats-label">coups enregistrés</div>
+        </div>
+
+        <button onclick="finDuTrou()" id="btnFinTrou" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%); margin-top: 15px;">
+            🏁 Fin du Trou
+        </button>
+        
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // ⚠️ REMPLACEZ CETTE URL PAR VOTRE URL GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzRdSUOyvGs8o8GG9aOu_Yl-NgbBBYc-EyHeGTJl1s8DDWDWD-J7YZKmBkPH7JEUUg/exec';
+        
+        let coupCounter = 0;
+
+        function afficherStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = 'status-' + type;
+            statusDiv.innerHTML = message;
+            statusDiv.style.display = 'block';
+        }
+
+        function envoyerVersGoogleSheets(latitude, longitude, accuracy, club) {
+            const data = {
+                latitude: latitude,
+                longitude: longitude,
+                accuracy: accuracy,
+                club: club
+            };
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                coupCounter++;
+                document.getElementById('coupCount').textContent = coupCounter;
+                
+                const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                afficherStatus(
+                    `✅ Coup enregistré avec succès !
+                    <div class="position-info">
+                        <strong>Club:</strong> ${club}<br>
+                        <strong>Latitude:</strong> ${latitude.toFixed(6)}<br>
+                        <strong>Longitude:</strong> ${longitude.toFixed(6)}<br>
+                        <strong>Précision:</strong> ±${accuracy.toFixed(0)} mètres
+                    </div>
+                    <a href="${mapLink}" target="_blank" class="map-link">🗺️ Voir sur Google Maps</a>`,
+                    'success'
+                );
+            })
+            .catch(error => {
+                afficherStatus('❌ Erreur lors de l\'envoi: ' + error.message, 'error');
+            });
+        }
+
+        function enregistrerCoup() {
+            const club = document.getElementById('clubSelect').value;
+            
+            if (!club) {
+                afficherStatus('⚠️ Veuillez sélectionner un club de golf', 'error');
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                afficherStatus('❌ La géolocalisation n\'est pas supportée par votre navigateur', 'error');
+                return;
+            }
+
+            afficherStatus('🔍 Localisation en cours...', 'info');
+            document.getElementById('btnCoup').disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    envoyerVersGoogleSheets(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                        position.coords.accuracy,
+                        club
+                    );
+                    document.getElementById('btnCoup').disabled = false;
+                },
+                function(error) {
+                    let message = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = '❌ Vous avez refusé l\'accès à la localisation';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = '❌ Position indisponible';
+                            break;
+                        case error.TIMEOUT:
+                            message = '❌ Délai d\'attente dépassé';
+                            break;
+                        default:
+                            message = '❌ Erreur inconnue';
+                    }
+                    afficherStatus(message, 'error');
+                    document.getElementById('btnCoup').disabled = false;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function finDuTrou() {
+            if (coupCounter === 0) {
+                afficherStatus('ℹ️ Aucun coup à réinitialiser', 'info');
+                return;
+            }
+            
+            const coupsTotal = coupCounter;
+            coupCounter = 0;
+            document.getElementById('coupCount').textContent = coupCounter;
+            document.getElementById('clubSelect').value = '';
+            
+            afficherStatus(
+                `🏁 Trou terminé ! Total: <strong>${coupsTotal} coup${coupsTotal > 1 ? 's' : ''}</strong><br>
+                Prêt pour le prochain trou !`,
+                'success'
+            );
+        }
+    </script>
+</body>
+</html>
