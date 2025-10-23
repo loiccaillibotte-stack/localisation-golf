@@ -164,7 +164,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>⛳ Tracker de Golf</h1>
+        <h1>⛳ localisation de MICHEL ⛳</h1>
         <p class="subtitle">Enregistrez vos coups avec précision</p>
         
         <div class="form-group">
@@ -187,7 +187,7 @@
                     <option value="Fer 9">Fer 9</option>
                 </optgroup>
                 <optgroup label="Wedges">
-                    <option value="Pitching Wedge">Pitching Wedge (PW)</option>
+                    <option value="Lob Wedge">Lob Wedge (LW)</option>
                 </optgroup>
                 <optgroup label="Putter">
                     <option value="Putter">Putter</option>
@@ -213,7 +213,7 @@
 
     <script>
         // ⚠️ REMPLACEZ CETTE URL PAR VOTRE URL GOOGLE APPS SCRIPT
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzRdSUOyvGs8o8GG9aOu_Yl-NgbBBYc-EyHeGTJl1s8DDWDWD-J7YZKmBkPH7JEUUg/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby8pTL2BuLTPYnydf860w52GOJzdLiWWAdrhItm5ZgkeOn5u-bItGBE3MPCNMCcGztN/exec';
         
         let coupCounter = 0;
 
@@ -316,19 +316,78 @@
 
         function finDuTrou() {
             if (coupCounter === 0) {
-                afficherStatus('ℹ️ Aucun coup à réinitialiser', 'info');
+                afficherStatus('ℹ️ Aucun coup enregistré sur ce trou', 'info');
                 return;
             }
-            
+
+            if (!navigator.geolocation) {
+                afficherStatus('❌ La géolocalisation n\'est pas supportée par votre navigateur', 'error');
+                return;
+            }
+
+            afficherStatus('🔍 Localisation en cours pour marquer la fin du trou...', 'info');
+            document.getElementById('btnFinTrou').disabled = true;
+
             const coupsTotal = coupCounter;
-            coupCounter = 0;
-            document.getElementById('coupCount').textContent = coupCounter;
-            document.getElementById('clubSelect').value = '';
-            
-            afficherStatus(
-                `🏁 Trou terminé ! Total: <strong>${coupsTotal} coup${coupsTotal > 1 ? 's' : ''}</strong><br>
-                Prêt pour le prochain trou !`,
-                'success'
+
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    // Enregistrer avec les vraies coordonnées mais marqueur dans le club
+                    const data = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy,
+                        club: '--- FIN DU TROU ---'
+                    };
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(() => {
+                        document.getElementById('clubSelect').value = '';
+                        document.getElementById('btnFinTrou').disabled = false;
+                        
+                        const mapLink = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+                        afficherStatus(
+                            `🏁 Trou terminé ! Total: <strong>${coupsTotal} coup${coupsTotal > 1 ? 's' : ''}</strong><br>
+                            Fin du trou enregistrée avec coordonnées.<br>
+                            <a href="${mapLink}" target="_blank" class="map-link">🗺️ Voir la position finale</a>`,
+                            'success'
+                        );
+                    })
+                    .catch(error => {
+                        afficherStatus('❌ Erreur lors de l\'enregistrement: ' + error.message, 'error');
+                        document.getElementById('btnFinTrou').disabled = false;
+                    });
+                },
+                function(error) {
+                    let message = '';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            message = '❌ Vous avez refusé l\'accès à la localisation';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            message = '❌ Position indisponible';
+                            break;
+                        case error.TIMEOUT:
+                            message = '❌ Délai d\'attente dépassé';
+                            break;
+                        default:
+                            message = '❌ Erreur inconnue';
+                    }
+                    afficherStatus(message, 'error');
+                    document.getElementById('btnFinTrou').disabled = false;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
             );
         }
     </script>
